@@ -1,0 +1,1 @@
+print("Cursor + Git setup working")
