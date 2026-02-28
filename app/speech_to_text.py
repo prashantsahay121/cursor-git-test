@@ -1,49 +1,80 @@
-import speech_recognition as sr
+import queue
+import sys
+import sounddevice as sd
+import json
+import os
+from vosk import Model, KaldiRecognizer
 
-recognizer = sr.Recognizer()
+# ---------------- CONFIG ----------------
+WAKE_WORD = "casper"
+SAMPLE_RATE = 16000
+
+# -------- Absolute Model Path Fix --------
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_PATH = r"C:\Users\Prashant Sahay\Downloads\vosk-model-en-in-0.5\vosk-model-en-in-0.5"
+
+print("Loading Vosk model from:", MODEL_PATH)
+
+if not os.path.exists(MODEL_PATH):
+    raise FileNotFoundError(f"Model folder not found at {MODEL_PATH}")
+
+# -------- Load Model Once --------
+model = Model(MODEL_PATH)
+
+# -------- Audio Queue --------
+q = queue.Queue()
+
+def audio_callback(indata, frames, time, status):
+    if status:
+        print(status, file=sys.stderr)
+    q.put(bytes(indata))
+
+
+def listen_text():
+    """
+    Capture one complete spoken sentence and return text
+    """
+    rec = KaldiRecognizer(model, SAMPLE_RATE)
+    rec.SetWords(False)
+
+    with sd.RawInputStream(
+        samplerate=SAMPLE_RATE,
+        blocksize=8000,
+        dtype="int16",
+        channels=1,
+        callback=audio_callback
+    ):
+        while True:
+            data = q.get()
+            if rec.AcceptWaveform(data):
+                result = json.loads(rec.Result())
+                text = result.get("text", "")
+                return text.lower()
 
 
 def listen_for_wake_word():
-    with sr.Microphone() as source:
-        print("\n[Wake Mode] Say 'Casper' to activate...")
-        recognizer.adjust_for_ambient_noise(source, duration=0.5)
+    print("\n[Wake Mode] Say wake word...")
 
-        try:
-            audio = recognizer.listen(source, timeout=5, phrase_time_limit=3)
-        except:
-            print("No speech detected.")
-            return False
+    WAKE_VARIANTS = ["casper", "kasper", "caspar", "caspur", "jasper", "spare"]
 
-        try:
-            text = recognizer.recognize_google(audio).lower()
-            print("Heard (wake check):", text)
+    while True:
+        text = listen_text()
+        print("Heard:", text)
 
-            if "casper" in text or "kasper" in text:
+        for variant in WAKE_VARIANTS:
+            if variant in text:
                 print("Wake word detected!")
                 return True
-            else:
-                return False
-
-        except Exception as e:
-            print("Speech recognition error:", e)
-            return False
 
 
 def listen_for_question():
-    with sr.Microphone() as source:
-        print("\n[Question Mode] Ask your question now...")
-        recognizer.adjust_for_ambient_noise(source, duration=0.5)
+    print("\n[Question Mode] Ask now...")
 
-        try:
-            audio = recognizer.listen(source, timeout=7, phrase_time_limit=6)
-        except:
-            print("No question detected.")
-            return None
+    text = listen_text()
 
-        try:
-            text = recognizer.recognize_google(audio)
-            print("Question captured:", text)
-            return text
-        except Exception as e:
-            print("Question recognition error:", e)
-            return None
+    if len(text.strip()) < 3:
+        print("Too short, ignoring.")
+        return None
+
+    print("Question captured:", text)
+    return text
