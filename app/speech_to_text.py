@@ -3,7 +3,7 @@ import numpy as np
 import queue
 from faster_whisper import WhisperModel
 
-# ---------------- CONFIG ----------------
+
 SAMPLE_RATE = 16000
 BLOCK_SIZE = 1024
 SILENCE_THRESHOLD = 0.015
@@ -84,7 +84,7 @@ def transcribe(audio):
     return "".join([seg.text for seg in segments]).strip().lower()
 
 
-# ---------------- PUBLIC FUNCTIONS ----------------
+
 def listen_for_wake_word():
     print("\n[Wake Mode] Say wake word...")
 

@@ -1,7 +1,7 @@
 import cv2
 import threading
 
-# Replace with your mobile IP
+
 IP_CAMERA_URL = "http://192.168.1.11:8080/video"
 
 latest_frame = None
