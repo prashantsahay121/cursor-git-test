@@ -1,7 +1,7 @@
 from app.gemini_client import ask_gemini_with_image
 from app.tts import speak
 from app.camera import start_camera, capture_current_frame
-from app.speech_to_text import listen_for_wake_word, listen_for_question
+from app.speech_to_text import listen_once, WAKE_VARIANTS
 import threading
 
 
@@ -13,21 +13,46 @@ def run_assistant():
 
     print("Assistant started...")
 
+    closing_keywords = [
+        "thank you",
+        "thanks",
+        "problem solved",
+        "solved",
+        "done",
+        "it's working",
+        "now it is fine"
+    ]
+
     while True:
-        if listen_for_wake_word():
 
-            speak("Yes, what is your question?")
+        print("\n[Wake Mode] Say wake word...")
+        text = listen_once(mode="wake")
 
-            question = listen_for_question()
+        if not text:
+            continue
+
+        if any(w in text for w in WAKE_VARIANTS):
+
+            speak("Yes?")
+
+            print("\n[Question Mode] Ask now...")
+            question = listen_once(mode="question")
 
             if not question:
                 continue
+
+            question_lower = question.lower()
+
+            # ---- CLOSE SESSION CHECK ----
+            if any(word in question_lower for word in closing_keywords):
+                speak("Okay. Most Welcome.")
+                continue
+            # -----------------------------
 
             print("Capturing frame...")
             image_path = capture_current_frame()
 
             if not image_path:
-                print("No frame available")
                 speak("Camera frame not available.")
                 continue
 
