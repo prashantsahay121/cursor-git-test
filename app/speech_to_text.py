@@ -12,7 +12,9 @@ SILENCE_DURATION = 0.3
 WAKE_VARIANTS = [
     "casper", "kasper", "caspar",
     "caspur", "jasper", "gasper",
-    "caster", "cazper","asper","as per","kespel","gospel"
+    "caster", "cazper","asper","as per","kespel","gospel","one.","yes, boom.","aspun.","gas pump","yes, good"," gasput.","square.",
+    "desperate","yes, burn","yes, bruno.","yes, pardon.","gas burn.","yes, per.","gas proof.","yes, but.","gaspura.","yes, fun.",
+    "gas pump.","gas fund.","yes, bud.","gas bomb.","gas food.","test code.","bye.","yes, turn.","yes, put."
 ]
 
 print("Loading Whisper models...")
@@ -100,7 +102,7 @@ def listen_once(mode="wake"):
     if not text or len(text.strip()) < 2:
         return None
     if mode == "wake":
-        print("Heard: casper")
+        print("Heard:", "Casper")
     else:
         print("Heard:", text)
     return text
