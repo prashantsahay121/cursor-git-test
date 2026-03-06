@@ -14,14 +14,16 @@ def run_assistant():
     print("Assistant started...")
 
     closing_keywords = [
-        "thank you",
-        "thanks",
-        "problem solved",
-        "solved",
-        "done",
-        "it's working",
-        "now it is fine"
-    ]
+    "thank you",
+    "thanks",
+    "problem solved",
+    "solved",
+    "done",
+    "it's working",
+    "now it is fine",
+    "it is cooling now",
+    "now it is cooling"
+]
 
     while True:
 
@@ -45,7 +47,7 @@ def run_assistant():
 
             # ---- CLOSE SESSION CHECK ----
             if any(word in question_lower for word in closing_keywords):
-                speak("Okay. Most Welcome.")
+                speak("Great. Glad the issue is resolved. If you need help again, just call me.")
                 continue
             # -----------------------------
 
