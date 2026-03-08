@@ -1,14 +1,14 @@
 import cv2
 import threading
 
-
-IP_CAMERA_URL = "http://192.168.1.11:8080/video"
+IP_CAMERA_URL = "http://192.168.1.25:8080/video"
 
 latest_frame = None
 camera_running = False
 
 
 def start_camera():
+
     global latest_frame, camera_running
 
     cap = cv2.VideoCapture(IP_CAMERA_URL)
@@ -21,13 +21,16 @@ def start_camera():
     print("Mobile camera started...")
 
     while camera_running:
+
         ret, frame = cap.read()
+
         if not ret:
-            break
+            continue
 
         latest_frame = frame
-        small_frame = cv2.resize(frame, (640, 480))
-        cv2.imshow("Mobile Camera", small_frame)
+
+        small = cv2.resize(frame, (640,480))
+        cv2.imshow("Mobile Camera", small)
 
         if cv2.waitKey(1) & 0xFF == 27:
             break
@@ -37,6 +40,7 @@ def start_camera():
 
 
 def capture_current_frame(output_path="captured.jpg"):
+
     global latest_frame
 
     if latest_frame is None:
@@ -45,8 +49,3 @@ def capture_current_frame(output_path="captured.jpg"):
 
     cv2.imwrite(output_path, latest_frame)
     return output_path
-
-
-def stop_camera():
-    global camera_running
-    camera_running = False
