@@ -1,7 +1,7 @@
 import cv2
 import threading
 
-IP_CAMERA_URL = "http://192.168.1.25:8080/video"
+IP_CAMERA_URL = "http://192.168.1.18:8080/video"
 
 latest_frame = None
 camera_running = False

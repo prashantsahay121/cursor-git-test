@@ -7,6 +7,27 @@ from app.tts import speak
 from app.formatter import to_hinglish, split_hindi_response, text_for_tts
 
 
+
+
+END_WORDS = [
+    "thank you",
+    "thanks",
+    "ok",
+    "okay",
+    "theek hai",
+    "thik hai",
+    "done",
+    "ho gaya",
+    "bas",
+    "enough",
+    "that's all",
+    "problem solved"
+]
+
+
+
+conversation_history = []
+
 def run_assistant():
 
     camera_thread = threading.Thread(target=start_camera)
@@ -32,6 +53,17 @@ def run_assistant():
             print("\n[Question Mode] Ask now...")
 
             question = listen_once(mode="question")
+            conversation_history.append(f"User: {question}")
+
+            if any(word in question.lower() for word in END_WORDS):
+
+                message = "Glad I could help. If you have another issue, just say Casper."
+
+                print("\nAssistant:\n", message)
+
+                speak(message)
+
+                continue
 
             if not question:
                 continue
@@ -52,8 +84,10 @@ def run_assistant():
             answer = ask_gemini_with_image(
                 image_path,
                 question,
-                language
+                language,
+                conversation_history
             )
+            conversation_history.append(f"Assistant: {answer}")
 
             if language == "hindi":
                 hindi_for_tts, hinglish_for_terminal = split_hindi_response(answer)
